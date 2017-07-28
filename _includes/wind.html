@@ -1,0 +1,280 @@
+<section id="wind">
+
+<style>
+
+.arc text {
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+.arc path {
+  stroke: #fff;
+}
+
+</style>
+    <div class="content-section-b">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">Which wind direction is impacting PM2.5 measurement the most?</h2>
+                    <div class="lead">Wind direction is one of the most important elements in impacting the PM2.5 measurement. From which we know where the pollution is coming from or blowing away. The graph is created in the following three different PM2.5 levels:  “under 35 µg/m^3”, which is within the US EPA standard level and healthy, “between 35 to 150 µg/m^3”, and “over 150 µg/m^3” , which consider “Unhealthy” in Air quality index (AQI) value. You can click on the buttons and explore the wind direction at each PM2.5 levels! The parameter in the middle showing the level you are currently on.</div>
+                </div>
+
+                <style> .chart rect { fill: steelblue } </style>
+                <div class="col-lg-5 col-sm-pull-6  col-sm-6" >
+                    <input name="PM2.5 less than 35" 
+           type="button" 
+           value="PM2.5 less than 35" 
+           onclick="updateData()" />
+               <input name="PM2.5 between 35 and 150" 
+           type="button" 
+           value="PM2.5 between 35 and 150" 
+           onclick="updateDataone()" />
+            <input name="PM2.5 more than 150" 
+           type="button" 
+           value="PM2.5 more than 150" 
+           onclick="updateDatatwo()" />
+           <div width="500" height="400">
+                    <svg width="500" height="400" id="area1"></svg>
+                    </div>
+
+<script>
+
+var svgone = d3.select("#area1"),
+    widthone = +svgone.attr("width"),
+    heightone = +svgone.attr("height"),
+    radiusone = Math.min(widthone, heightone) / 2,
+    gone = svgone.append("g").attr("transform", "translate(" + widthone / 2 + "," + heightone / 2 + ")");
+
+var color = d3.scaleOrdinal(["#98abc5", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var pieone = d3.pie()
+    .sort(null)
+    .value(function(d) { return d.lessthan35; });
+
+var pathone = d3.arc()
+    .outerRadius(radiusone - 10)
+    .innerRadius(radiusone - 70);
+
+var labelone = d3.arc()
+    .outerRadius(radiusone - 40)
+    .innerRadius(radiusone - 40);
+
+d3.csv("data/wind.csv", function(d) {
+  d.lessthan35 = +d.lessthan35;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+
+  var arcone = gone.selectAll(".arc")
+    .data(pieone(data))
+    .enter().append("g")
+      .attr("class", "arc");
+
+      arcone.append("text")
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .text("PM 2.5 less than 35 ug m-3");
+
+  arcone.append("path")
+       .attr("d", pathone)
+      .style("fill", function(d) { return color(d.data.pm); });
+
+  arcone.append("text")
+      .attr("transform", function(d) { return "translate(" + labelone.centroid(d) + ")"; })
+      .attr("dy", "0.35em")
+      .text(function(d) { return d.data.pm; });
+});
+
+function updateData() {
+
+var svgone = d3.select("#area1"),
+    widthone = +svgone.attr("width"),
+    heightone = +svgone.attr("height"),
+    radiusone = Math.min(widthone, heightone) / 2,
+    gone = svgone.append("g").attr("transform", "translate(" + widthone / 2 + "," + heightone / 2 + ")");
+
+var color = d3.scaleOrdinal(["#98abc5", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var pieone = d3.pie()
+    .sort(null)
+    .value(function(d) { return d.lessthan35; });
+
+var pathone = d3.arc()
+    .outerRadius(radiusone - 10)
+    .innerRadius(radiusone - 70);
+
+var labelone = d3.arc()
+    .outerRadius(radiusone - 40)
+    .innerRadius(radiusone - 40);
+
+d3.csv("data/wind.csv", function(d) {
+  d.between35and150 = +d.lessthan35;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+
+  var arcone = gone.selectAll(".arc")
+    .data(pieone(data))
+    .enter().append("g")
+      .attr("class", "arc");
+
+        arcone.append("rect")
+      .attr("width", 200)
+      .attr("y", -70)
+      .attr("height", 150)
+      .attr("x", -100)
+      .style("fill", "white");
+
+arcone.append("text")
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .text("PM 2.5 less than 35 ug m-3");
+
+  arcone.append("path")
+       .attr("d", pathone)
+      .style("fill", function(d) { return color(d.data.pm); });
+
+  arcone.append("text")
+      .attr("transform", function(d) { return "translate(" + labelone.centroid(d) + ")"; })
+      .attr("dy", "0.35em")
+      .text(function(d) { return d.data.pm; });
+});
+
+}
+
+
+
+function updateDataone() {
+
+var svgone = d3.select("#area1"),
+    widthone = +svgone.attr("width"),
+    heightone = +svgone.attr("height"),
+    radiusone = Math.min(widthone, heightone) / 2,
+    gone = svgone.append("g").attr("transform", "translate(" + widthone / 2 + "," + heightone / 2 + ")");
+
+var color = d3.scaleOrdinal(["#98abc5", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var pieone = d3.pie()
+    .sort(null)
+    .value(function(d) { return d.between35and150; });
+
+var pathone = d3.arc()
+    .outerRadius(radiusone - 10)
+    .innerRadius(radiusone - 70);
+
+var labelone = d3.arc()
+    .outerRadius(radiusone - 40)
+    .innerRadius(radiusone - 40);
+
+d3.csv("data/wind.csv", function(d) {
+  d.between35and150 = +d.between35and150;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+
+  var arcone = gone.selectAll(".arc")
+    .data(pieone(data))
+    .enter().append("g")
+      .attr("class", "arc");
+
+  arcone.append("path")
+       .attr("d", pathone)
+      .style("fill", function(d) { return color(d.data.pm); });
+
+    arcone.append("rect")
+      .attr("width", 200)
+      .attr("y", -70)
+      .attr("height", 150)
+      .attr("x", -100)
+      .style("fill", "white");
+
+
+      arcone.append("text")
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .text("PM 2.5 between 35 and 150 ug m-3");
+
+  arcone.append("text")
+      .attr("transform", function(d) { return "translate(" + labelone.centroid(d) + ")"; })
+      .attr("dy", "0.35em")
+      .text(function(d) { return d.data.pm; });
+});
+
+}
+
+function updateDatatwo() {
+
+
+var svgone = d3.select("#area1"),
+    widthone = +svgone.attr("width"),
+    heightone = +svgone.attr("height"),
+    radiusone = Math.min(widthone, heightone) / 2,
+    gone = svgone.append("g").attr("transform", "translate(" + widthone / 2 + "," + heightone / 2 + ")");
+
+
+
+
+var color = d3.scaleOrdinal(["#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var pieone = d3.pie()
+    .sort(null)
+    .value(function(d) { return d.morethan150; });
+
+var pathone = d3.arc()
+    .outerRadius(radiusone - 10)
+    .innerRadius(radiusone - 70);
+
+var labelone = d3.arc()
+    .outerRadius(radiusone - 40)
+    .innerRadius(radiusone - 40);
+
+d3.csv("data/wind.csv", function(d) {
+  d.morethan150 = +d.morethan150;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+ 
+
+  var arcone = gone.selectAll(".arc")
+    .data(pieone(data))
+    .enter().append("g")
+      .attr("class", "arc");
+
+  arcone.append("path")
+       .attr("d", pathone)
+      .style("fill", function(d) { return color(d.data.pm); });
+
+    arcone.append("rect")
+      .attr("width", 200)
+      .attr("y", -70)
+      .attr("height", 150)
+      .attr("x", -100)
+      .style("fill", "white");
+
+      arcone.append("text")
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .text("PM 2.5 more than 150 ug m-3");
+
+  arcone.append("text")
+      .attr("transform", function(d) { return "translate(" + labelone.centroid(d) + ")"; })
+      .attr("dy", "0.35em")
+      .text(function(d) { return d.data.pm; });
+});
+
+}
+
+</script>
+
+                </div>
+            </div>
+
+        </div>
+        <!-- /.container -->
+
+    </div>
+    </section>

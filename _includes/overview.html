@@ -1,0 +1,285 @@
+<style> /* set the CSS */
+path { 
+    stroke: palegoldenrod;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.annotation path {
+      stroke: black;
+      stroke-width: 1px;
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    .annotation path.connector-arrow, 
+    .annotation path.connector-dot, 
+    .title text, .annotation text {
+      fill: var(--annotation-color);
+      stroke: var(--annotation-color);
+    }
+
+    .annotation text {
+      stroke-width: .5px;
+    }
+
+    .annotation-note-bg {
+      fill: rgba(0, 0, 0, 0);
+    }
+
+    .annotation-note-title, text.title {
+      font-weight: bold;
+    }
+
+    text.title {
+      font-size: 1.2em;
+    }
+
+</style>
+    <div id="overview" class="content-section-a">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">Overview</h2>
+                    <div class="lead">This graph shows the overview changes of Pm2.5 across the years in the dataset. The data is the average Pm2.5 index per hour aggregated across 2010 to 2014. The graph shows no significant reduction across all the years even after the pollution reduction started in 2012. You can see the details of the graph data with the annotations on the graph. You can also move over the line chart to see pm2.5 measurement in each hour!</div>
+                </div>
+                <div class="col-lg-5 col-lg-offset-2 col-sm-6"  >
+                <svg width="500" height="400" id="area2"></svg>
+
+
+                 <script>
+
+// Set the dimensions of the canvas / graph
+var margin = {top: 30, right: 30, bottom: 80, left: 30},
+    width = 500 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+var parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
+    formatDate = d3.timeFormat("%d-%b-%H:%M"),
+    bisectDate = d3.bisector(function(d) { return d.time; }).left; // **
+
+
+var x = d3.scaleTime().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+
+// Define the line
+var valueline = d3.line()
+    .x(function(d) { return x(d.time); })
+    .y(function(d) { return y(d.pm_data); });
+    
+// Adds the svg canvas
+
+
+var svg = d3.select("#area2").append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+var lineSvg = svg.append("g"); 
+
+var focus = svg.append("g") 
+    .style("display", "none");
+
+// Get the data
+d3.csv("pmdata_3.csv", function(error, data) {
+    data.forEach(function(d) {
+        d.time = parseDate(d.time);
+        d.pm_data = +d.pm_data;
+    });
+
+    // Scale the range of the data
+
+  x.domain(d3.extent(data, function(d) { return d.time; }));
+  y.domain([0, d3.max(data, function(d) { return d.pm_data; })]);
+
+    // Add the valueline path.
+    lineSvg.append("path")
+        .attr("class", "line")
+        .attr("d", valueline(data));
+var xAxis = d3.axisBottom(x).ticks(5);
+
+var yAxis = d3.axisLeft(y).ticks(5);
+
+    // Add the X Axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 4)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Pm2.5");   
+ 
+
+   // append the x line
+    focus.append("line")
+        .attr("class", "x")
+        .style("stroke", "blue")
+        .style("stroke-dasharray", "3,3")
+        .style("opacity", 0.5)
+        .attr("y1", 0)
+        .attr("y2", height);
+
+    // append the y line
+    focus.append("line")
+        .attr("class", "y")
+        .style("stroke", "blue")
+        .style("stroke-dasharray", "3,3")
+        .style("opacity", 0.5)
+        .attr("x1", width)
+        .attr("x2", width);
+
+    // append the circle at the intersection
+    focus.append("circle")
+        .attr("class", "y")
+        .style("fill", "none")
+        .style("stroke", "blue")
+        .attr("r", 2);
+
+    // place the value at the intersection
+    focus.append("text")
+        .attr("class", "y1")
+        .style("stroke", "white")
+        .style("stroke-width", "3.5px")
+        .style("opacity", 0.8)
+        .attr("dx", 8)
+        .attr("dy", "-.3em");
+    focus.append("text")
+        .attr("class", "y2")
+        .attr("dx", 8)
+        .attr("dy", "-.3em");
+
+    // place the date at the intersection
+    focus.append("text")
+        .attr("class", "y3")
+        .style("stroke", "white")
+        .style("stroke-width", "3.5px")
+        .style("opacity", 0.8)
+        .attr("dx", 8)
+        .attr("dy", "1em");
+    focus.append("text")
+        .attr("class", "y4")
+        .attr("dx", 8)
+        .attr("dy", "1em");
+    
+    // append the rectangle to capture mouse
+    svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("mouseover", function() { focus.style("display", null); })
+        .on("mouseout", function() { focus.style("display", "none"); })
+        .on("mousemove", mousemove);
+
+    function mousemove() {
+    var x0 = x.invert(d3.mouse(this)[0]),
+        i = bisectDate(data, x0, 1),
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+    focus.select("circle.y")
+        .attr("transform",
+              "translate(" + x(d.time) + "," +
+                             y(d.pm_data) + ")");
+
+    focus.select("text.y1")
+        .attr("transform",
+              "translate(" + x(d.time) + "," +
+                             y(d.pm_data) + ")")
+        .text(d.pm_data);
+
+    focus.select("text.y2")
+        .attr("transform",
+              "translate(" + x(d.time) + "," +
+                             y(d.pm_data) + ")")
+        .text(d.pm_data);
+
+    focus.select("text.y3")
+        .attr("transform",
+              "translate(" + x(d.time) + "," +
+                             y(d.pm_data) + ")")
+        .text(formatDate(d.time));
+
+    focus.select("text.y4")
+        .attr("transform",
+              "translate(" + x(d.time) + "," +
+                             y(d.pm_data) + ")")
+        .text(formatDate(d.time));
+
+    focus.select(".x")
+        .attr("transform",
+              "translate(" + x(d.time) + "," +
+                             y(d.pm_data) + ")")
+                   .attr("y2", height - y(d.pm_data));
+
+    focus.select(".y")
+        .attr("transform",
+              "translate(" + width * -1 + "," +
+                             y(d.pm_data) + ")")
+                   .attr("x2", width + width);
+  }
+
+
+
+     const annotations = [
+        {
+          note: {
+            label: "Maximum Pm 2.5 at 994 ug m-3 on Jan 23 01:00",
+          },
+          x: 220,
+          y: 45,
+          dy: 20,
+          dx: 50,
+        connector: { end: "arrow" }
+        },
+
+        {
+          note: {
+            label: "Overall average at 98.61 ug m-3",
+            title: "d3.annotationLabel"
+          },
+          x: 350,
+          y: 290,
+          dy: -10,
+          dx: -10,
+        }
+
+        ]
+
+        const makeAnnotations = d3.annotation()
+          .annotations(annotations)
+        d3.select("#area2")
+          .append("g")
+          .attr("class", "annotation-group")
+          .call(makeAnnotations)
+
+});
+
+</script>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>

@@ -1,0 +1,284 @@
+<style> /* set the CSS */
+
+     path {
+       fill: none;
+     }
+
+    .annotation path {
+      stroke: var(--annotation-context-color);
+    }
+
+    .annotation:not(.above):not(.anomaly) path {
+      stroke-dasharray: 1,3;
+    }
+
+    .annotation text {
+      fill: var(--annotation-context-color);
+    }
+
+    .annotation.above path {
+      stroke: var(--annotation-above-color);
+    }
+
+    .annotation.above text {
+      fill: var(--annotation-above-color);
+    }
+
+    .annotation.anomaly path {
+      stroke: var(--annotation-anomaly-color);
+      stroke-width: 2px;
+    }
+
+    .annotation.anomaly text {
+      fill: var(--annotation-anomaly-color);
+    }
+
+    .annotation-note-bg {
+      fill: rgba(0, 0, 0, 0);
+    }
+
+    .annotation-note-title {
+      font-weight: bold;
+    }
+
+    text.title {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+path { 
+    stroke: palegoldenrod;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.annotation path {
+      stroke: mediumvioletred;
+      stroke-width: 1px;
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    .annotation path.connector-arrow, 
+    .annotation path.connector-dot, 
+    .title text, .annotation text {
+      fill: var(--annotation-color);
+      stroke: var(--annotation-color);
+    }
+
+    .annotation text {
+      stroke-width: .5px;
+    }
+
+    .annotation-note-bg {
+      fill: rgba(0, 0, 0, 0);
+    }
+
+    .annotation-note-title, text.title {
+      font-weight: bold;
+    }
+
+    text.title {
+      font-size: 1em;
+    }
+
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 28px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+
+
+</style>
+    <div id="hours" class="content-section-a">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">What period of the day Beijing has the best air quality?</h2>
+                    <div class="lead">You would be surprised that air quality is the best during the daytime in the afternoon. That is because PM2.5 gets trapped in the cooler air near the surface in the evenings, which accounts for the higher concentrations at night. When the sun comes out, the air heats up and rises, which leads to lower concentrations in the day. Here is an news article on <a href="https://blogs.wsj.com/chinarealtime/2014/07/09/get-outside-while-you-can-beijing-and-shanghais-air-pollution-by-the-clock/">Beijing PM2.5 over a 24-hour period </a> by The Wall Street Journal for more details. You can mouse over each datapoint to see the PM2.5 measurement in each hour over a 24-hour period!</div>
+                </div>
+                <div class="col-lg-5 col-lg-offset-2 col-sm-6"  >
+                <svg width="500" height="600" id="area3"></svg>
+
+
+                 <script>
+
+// Set the dimensions of the canvas / graph
+var marginthree = {top: 130, right: 30, bottom: 80, left: 30},
+    widththree = 500 - marginthree.left - marginthree.right,
+    heightthree = 500 - marginthree.top - marginthree.bottom;
+
+var parseDatethree = d3.timeParse("%H:%M"),
+    formatDatethree = d3.timeFormat("%H:%M"),
+    bisectDatethree = d3.bisector(function(d) { return d.hours; }).left,
+          tickFormat = d3.format(".1s"); // **
+
+
+var xthree = d3.scaleTime().range([0, widththree]);
+var ythree = d3.scaleLinear().range([heightthree, 0]);
+
+
+// Define the line
+var valuelinethree = d3.line()
+    .x(function(d) { return xthree(d.hours); })
+    .y(function(d) { return ythree(d.hour_avg); });
+    
+// Adds the svg canvas
+var div = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
+var svgthree = d3.select("#area3").append("g").attr("transform", "translate(" + marginthree.left + "," + marginthree.top + ")");
+var lineSvgthree = svgthree.append("g"); 
+var focusthree = svgthree.append("g") 
+    .style("display", "none");
+
+// Get the data
+d3.csv("data/hour.csv", function(error, data) {
+    data.forEach(function(d) {
+        d.hours = parseDatethree(d.hours);
+        d.hour_avg = +d.hour_avg;
+    });
+
+    // Scale the range of the data
+
+  xthree.domain(d3.extent(data, function(d) { return d.hours; }));
+  ythree.domain([0, d3.max(data, function(d) { return d.hour_avg; })]);
+
+    // Add the valueline path.
+    lineSvgthree.append("path")
+        .attr("class", "line")
+        .attr("d", valuelinethree(data));
+
+
+var xAxisthree = d3.axisBottom(xthree).tickFormat(formatDatethree);
+var yAxisthree = d3.axisLeft(ythree).ticks(5);
+
+    // Add the X Axis
+    svgthree.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + heightthree + ")")
+        .call(xAxisthree);
+
+    // Add the Y Axis
+    svgthree.append("g")
+        .attr("class", "y axis")
+        .call(yAxisthree)
+        .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 4)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Pm2.5");   
+ 
+
+
+    svgthree.selectAll("dot")	
+        .data(data)			
+    .enter().append("circle")								
+        .attr("r", 3)
+        .style("opacity", .5)		
+        .attr("cx", function(d) { return xthree(d.hours); })		 
+        .attr("cy", function(d) { return ythree(d.hour_avg); })		
+        .on("mouseover", function(d) {		
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            div	.html(formatDatethree(d.hours) + "<br/>"  + d.hour_avg)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+            })					
+        .on("mouseout", function(d) {		
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+        });
+
+
+
+	
+
+});
+
+
+
+
+
+
+</script>
+
+<script src="js/d3-annotation.js"></script>
+<script src="js/d3-annotation.min.js"></script>
+
+<script>
+		const annotations_2 =[{
+          //below in makeAnnotations has type set to d3.annotationLabel
+          //you can add this type value below to override that default
+          type: d3.annotationCalloutCircle,
+          note: {
+            label: "Due to air inversion, concentrations peak at night",
+            wrap: 190
+          },
+          //settings for the subject, in this case the circle radius
+          subject: {
+            radius: 50
+          },
+          x: 70,
+          y: 150,
+          dy: 100,
+          dx: 0
+        },
+{
+          //below in makeAnnotations has type set to d3.annotationLabel
+          //you can add this type value below to override that default
+          type: d3.annotationCalloutCircle,
+          note: {
+            label: "Air heats up and rises in day time, which leads to lower concentrations",
+            wrap: 190
+          },
+          //settings for the subject, in this case the circle radius
+          subject: {
+            radius: 50
+          },
+          x: 330,
+          y: 200,
+          dy: 120,
+          dx: -1
+        }
+
+
+        ]
+
+        const makeAnnotations_2 = d3.annotation()
+          .annotations(annotations_2)
+        d3.select("#area3")
+          .append("g")
+          .attr("class", "annotation-group")
+          .call(makeAnnotations_2)
+
+</script>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>

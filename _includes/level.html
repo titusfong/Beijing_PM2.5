@@ -1,0 +1,269 @@
+    <div id="level" class="content-section-a">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">Is PM2.5 measurement doing better over the years and meeting the improvement targets?</h2>
+                    <div class="lead">Here is a graph showing accumulated hours of different PM 2.5 level in a year. The graph is created in the following three different PM2.5 levels:  “under 35 µg/m^3”, which is within the US EPA standard level and healthy, “between 35 to 150 µg/m^3”, and “over 150 µg/m^3” , which consider “Unhealthy” in Air quality index (AQI) value. If there are more hours in one year in the “under 35 µg/m^3” chart than the previous year, meaning that air quality in that year is improving. If there are more hours in one year in “over 150 µg/m^3” chart than the previous year, the reverse is true. You can click on different levels to explore if the air quality is improving! </div>
+                </div>
+                <div class="col-lg-5 col-lg-offset-2 col-sm-6"  >
+
+                          <div class='radio'>
+            <label class='radio-inline'>
+              <input type="radio" name="gender" value="lessthan35" onclick='change(this.value)' checked > lessthan35
+            </label>
+            <label class='radio-inline'>
+              <input type="radio" name="gender" value="between35and150" onclick='change(this.value)'> between35and150
+            </label>
+            <label class='radio-inline'>
+              <input type="radio" name="gender" value="morethan150" onclick='change(this.value)' > morethan150
+            </label>
+          </div>
+
+
+                <svg width="400" height="500" id="area5" class= 'char'></svg>
+
+
+ 
+<script src="js/d3-annotation.js"></script>
+<script src="js/d3-annotation.min.js"></script>
+
+<script>
+//set up data
+var bothData = [
+  {
+    "level": "lessthan35",
+    "year": "2010",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2059"
+  },
+  {
+    "level": "lessthan35",
+    "year": "2011",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2490"
+  },
+  {
+    "level": "lessthan35",
+    "year": "2012",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2652"
+  },
+  {
+    "level": "lessthan35",
+    "year": "2013",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2384"
+  },
+  {
+    "level": "lessthan35",
+    "year": "2014",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2535"
+  },
+  {
+    "level": "between35and150",
+    "year": "2010",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "1998"
+  },
+  {
+    "level": "between35and150",
+    "year": "2011",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2438"
+  },
+  {
+    "level": "between35and150",
+    "year": "2012",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2612"
+  },
+  {
+    "level": "between35and150",
+    "year": "2013",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2339"
+  },
+  {
+    "level": "between35and150",
+    "year": "2014",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "2483"
+  },
+    {
+    "level": "morethan150",
+    "year": "2010",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "1952"
+  },
+  {
+    "level": "morethan150",
+    "year": "2011",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "1794"
+  },
+  {
+    "level": "morethan150",
+    "year": "2012",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "1612"
+  },
+  {
+    "level": "morethan150",
+    "year": "2013",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "1896"
+  },
+  {
+    "level": "morethan150",
+    "year": "2014",
+    "channel_display_name": "syncopika",
+    "channel_id": "T2NUI3KLGK6sDILFbzUZZg",
+    "data_value": "1737"
+  }
+];
+
+var lessthan35Data = [];
+var between35and150Data= [];
+var morethan150Data = [];
+
+for(var i = 0; i < bothData.length; i++){
+  if(bothData[i]["level"] === "lessthan35"){
+    lessthan35Data.push(bothData[i]);
+  }else if (bothData[i]["level"] === "between35and150"){
+    between35and150Data.push(bothData[i]);
+  }
+  else if (bothData[i]["level"] === "morethan150"){
+    morethan150Data.push(bothData[i]);
+  }
+}
+
+//functions for toggling between data
+function change(value){
+
+  if(value === 'lessthan35'){
+    update(lessthan35Data);
+  }else if(value === 'between35and150'){
+    update(between35and150Data);
+  }else{
+    update(morethan150Data);
+  }
+}
+
+function update(data){
+  //set domain for the x axis
+  xChart.domain(data.map(function(d){ return d.year; }) );
+  //set domain for y axis
+  yChart.domain( [0, d3.max(data, function(d){ return +d.data_value; })] );
+  
+  //get the widthfive of each bar 
+  var barwidthfive = widthfive / ((data.length)+0);
+  
+  //select all bars on the graph, take them out, and exit the previous data set. 
+  //then you can add/enter the new data set
+  var bars = chart.selectAll(".bar")
+          .remove()
+          .exit()
+          .data(data)   
+  //now actually give each rectangle the corresponding data
+  bars.enter()
+    .append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d, i){ return i * barwidthfive + 1 })
+    .attr("y", function(d){ return yChart( d.data_value); })
+    .attr("height", function(d){ return heightfive - yChart(d.data_value); })
+    .attr("width", barwidthfive - 1)
+    .attr("fill", "rgb(179,205,227)");
+  //left axis
+  chart.select('.y')
+      .call(yAxisfive)
+  //bottom axis
+  chart.select('.x')
+    .attr("transform", "translate(0," + heightfive + ")")
+    .call(xAxisfive)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", function(d){
+        return "rotate(-65)";
+      });
+      
+}//end update
+
+//set up chart
+var marginfive = {top: 20, right: 20, bottom: 95, left: 50};
+var widthfive = 400;
+var heightfive = 450;
+
+var chart = d3.select("#area5")
+        .attr("width", widthfive + marginfive.left + marginfive.right)
+        .attr("height", heightfive + marginfive.top + marginfive.bottom)
+        .append("g")
+        .attr("transform", "translate(" + marginfive.left + "," + marginfive.top + ")");
+
+var xChart = d3.scaleBand()
+        .range([0, widthfive]);
+        
+var yChart = d3.scaleLinear()
+        .range([heightfive, 0]);
+
+var xAxisfive = d3.axisBottom(xChart);
+var yAxisfive = d3.axisLeft(yChart);
+
+//set up axes
+//left axis
+  chart.append("g")
+      .attr("class", "y axis")
+      .call(yAxisfive)
+      
+  //bottom axis
+  chart.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + heightfive + ")")
+    .call(xAxisfive)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", function(d){
+        return "rotate(-65)";
+      });
+
+//add labels
+chart
+  .append("text")
+  .attr("transform", "translate(-40," +  (heightfive+marginfive.bottom)/2 + ") rotate(-90)")
+  .text("Accumulated Hours");
+    
+chart
+  .append("text")
+  .attr("transform", "translate(" + (widthfive/2) + "," + (heightfive + marginfive.bottom - 5) + ")")
+  .text("Year");
+
+//use bothData to begin with
+update(lessthan35Data);
+</script>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>

@@ -1,0 +1,284 @@
+<style> /* set the CSS */
+
+     path {
+       fill: none;
+     }
+
+    .annotation path {
+      stroke: var(--annotation-context-color);
+    }
+
+    .annotation:not(.above):not(.anomaly) path {
+      stroke-dasharray: 1,3;
+    }
+
+    .annotation text {
+      fill: var(--annotation-context-color);
+    }
+
+    .annotation.above path {
+      stroke: var(--annotation-above-color);
+    }
+
+    .annotation.above text {
+      fill: var(--annotation-above-color);
+    }
+
+    .annotation.anomaly path {
+      stroke: var(--annotation-anomaly-color);
+      stroke-width: 2px;
+    }
+
+    .annotation.anomaly text {
+      fill: var(--annotation-anomaly-color);
+    }
+
+    .annotation-note-bg {
+      fill: rgba(0, 0, 0, 0);
+    }
+
+    .annotation-note-title {
+      font-weight: bold;
+    }
+
+    text.title {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+path { 
+    stroke: palegoldenrod;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.annotation path {
+      stroke: mediumvioletred;
+      stroke-width: 1px;
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    .annotation path.connector-arrow, 
+    .annotation path.connector-dot, 
+    .title text, .annotation text {
+      fill: var(--annotation-color);
+      stroke: var(--annotation-color);
+    }
+
+    .annotation text {
+      stroke-width: .5px;
+    }
+
+    .annotation-note-bg {
+      fill: rgba(0, 0, 0, 0);
+    }
+
+    .annotation-note-title, text.title {
+      font-weight: bold;
+    }
+
+    text.title {
+      font-size: 1em;
+    }
+
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 28px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+
+
+</style>
+    <div id="mon" class="content-section-b">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">What is the best time of year Beijing has the air quality?</h2>
+                    <div class="lead">There are some months in Beijing are better than others. Beijing’s fall and spring often ushers in winds from the north that blow away air pollutants. Another factor impacting the PM2.5 measurement could be emissions from coal-fired power plants and other industrial activities. Both summer and winter coincide with higher emissions from the burning of coal for heat and the use of electricity from coal-fired power plants for air conditioning. Here is an news article on <a href="https://blogs.wsj.com/chinarealtime/2014/07/03/when-air-quality-in-beijing-and-shanghai-is-least-awful/">Air Quality in Beijing and Shanghai over a year</a> by The Wall Street Journal for more details. You can mouse over each datapoint to see the PM2.5 measurement in each month over a year from 2010-2014!</div>
+                </div>
+                <div class="col-lg-5 col-sm-pull-6  col-sm-6"  >
+                <svg width="500" height="600" id="area4"></svg>
+
+
+                 <script>
+
+// Set the dimensions of the canvas / graph
+var marginfour = {top: 130, right: 30, bottom: 80, left: 30},
+    widthfour = 500 - marginfour.left - marginfour.right,
+    heightfour = 500 - marginfour.top - marginfour.bottom;
+
+var parseDatefour = d3.timeParse("%m"),
+    formatDatefour = d3.timeFormat("%b"),
+    bisectDatefour = d3.bisector(function(d) { return d.month; }).left,
+          tickFormat = d3.format(".1s"); // **
+
+
+var xfour = d3.scaleTime().range([0, widthfour]);
+var yfour = d3.scaleLinear().range([heightfour, 0]);
+
+
+// Define the line
+var valuelinefour = d3.line()
+    .x(function(d) { return xfour(d.month); })
+    .y(function(d) { return yfour(d.mon_avg); });
+    
+// Adds the svg canvas
+var div = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
+var svgfour = d3.select("#area4").append("g").attr("transform", "translate(" + marginfour.left + "," + marginfour.top + ")");
+var lineSvgfour = svgfour.append("g"); 
+var focusfour = svgfour.append("g") 
+    .style("display", "none");
+
+// Get the data
+d3.csv("data/mon.csv", function(error, data) {
+    data.forEach(function(d) {
+        d.month = parseDatefour(d.month);
+        d.mon_avg = +d.mon_avg;
+    });
+
+    // Scale the range of the data
+
+  xfour.domain(d3.extent(data, function(d) { return d.month; }));
+  yfour.domain([0, d3.max(data, function(d) { return d.mon_avg; })]);
+
+    // Add the valueline path.
+    lineSvgfour.append("path")
+        .attr("class", "line")
+        .attr("d", valuelinefour(data));
+
+
+var xAxisfour = d3.axisBottom(xfour).tickFormat(formatDatefour);
+var yAxisfour = d3.axisLeft(yfour).ticks(5);
+
+    // Add the X Axis
+    svgfour.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + heightfour + ")")
+        .call(xAxisfour);
+
+    // Add the Y Axis
+    svgfour.append("g")
+        .attr("class", "y axis")
+        .call(yAxisfour)
+        .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 4)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Pm2.5");   
+ 
+
+
+    svgfour.selectAll("dot")	
+        .data(data)			
+    .enter().append("circle")								
+        .attr("r", 3)
+        .style("opacity", .5)		
+        .attr("cx", function(d) { return xfour(d.month); })		 
+        .attr("cy", function(d) { return yfour(d.mon_avg); })		
+        .on("mouseover", function(d) {		
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            div	.html(formatDatefour(d.month) + "<br/>"  + d.mon_avg)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+            })					
+        .on("mouseout", function(d) {		
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+        });
+
+
+
+	
+
+});
+
+
+
+
+
+
+</script>
+
+<script src="js/d3-annotation.js"></script>
+<script src="js/d3-annotation.min.js"></script>
+
+<script>
+		const annotations_3 =[{
+          //below in makeAnnotations has type set to d3.annotationLabel
+          //you can add this type value below to override that default
+          type: d3.annotationCalloutCircle,
+          note: {
+            label: "winter coincide with higher emissions from the burning of coal for heat",
+            wrap: 190
+          },
+          //settings for the subject, in this case the circle radius
+          subject: {
+            radius: 50
+          },
+          x: 70,
+          y: 150,
+          dy: 120,
+          dx: 0
+        },
+{
+          //below in makeAnnotations has type set to d3.annotationLabel
+          //you can add this type value below to override that default
+          type: d3.annotationCalloutCircle,
+          note: {
+            label: "Beijing’s fall and spring often ushers in winds from the north that blow away air pollutants",
+            wrap: 190
+          },
+          //settings for the subject, in this case the circle radius
+          subject: {
+            radius: 50
+          },
+          x: 330,
+          y: 210,
+          dy: 150,
+          dx: -1
+        }
+
+
+        ]
+
+        const makeAnnotations_3 = d3.annotation()
+          .annotations(annotations_3)
+        d3.select("#area4")
+          .append("g")
+          .attr("class", "annotation-group")
+          .call(makeAnnotations_3)
+
+</script>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
